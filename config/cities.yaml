@@ -1,0 +1,30 @@
+cities:
+  london:
+    country: united-kingdom
+    region: england
+    display_name: "London, England"
+    base_url: "https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/"
+    latest_date: "2025-09-14"
+    # Bounding box for coordinate validation
+    bounds:
+      lat_min: 51.2
+      lat_max: 51.8
+      lon_min: -0.6
+      lon_max: 0.4
+    files:
+      listings:         "listings.csv.gz"
+      listings_detailed: "listings.csv.gz"
+      calendar:         "calendar.csv.gz"
+      reviews:          "reviews.csv.gz"
+      neighbourhoods_csv: "https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/visualisations/neighbourhoods.csv"
+      neighbourhoods_geojson: "https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/visualisations/neighbourhoods.geojson"
+
+settings:
+  raw_data_dir: "data/bronze"
+  silver_data_dir: "data/silver"
+  gold_db_path: "data/gold/airbnb_london.duckdb"
+  metadata_db_path: "data/gold/pipeline_metadata.duckdb"
+  log_dir: "logs"
+  max_retries: 3
+  retry_delay_seconds: 5
+  chunk_size: 100000

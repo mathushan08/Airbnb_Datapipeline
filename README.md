@@ -1,7 +1,6 @@
 # Airbnb Market Intelligence Pipeline
 ## London, England — Inside Airbnb Data Challenge
 
-> **Expernetic Data Engineer Intern Assignment**
 > Built with Medallion Architecture (Bronze → Silver → Gold)
 
 ---
@@ -137,7 +136,7 @@ Airbnb_DataPipeline/
 ├── reports/                     Data quality HTML reports
 ├── requirements.txt
 ├── docker-compose.yml
-└── ai_disclosure.md
+└── create_notebooks.py
 ```
 
 ---
@@ -148,9 +147,4 @@ Airbnb_DataPipeline/
 2. `python pipeline/orchestrator.py --city london --phases bronze`
 3. `python pipeline/orchestrator.py --city london --phases silver`
 4. `pytest tests/ -v`
-
----
-
-## Author
-Data Engineer Intern Candidate
 

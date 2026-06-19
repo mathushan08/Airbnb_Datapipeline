@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: silver
+    schema: main
+    tables:
+      - name: listings
+        meta:
+          external_location: '../data/silver/london/listings.parquet'
+      - name: calendar
+        meta:
+          external_location: '../data/silver/london/calendar.parquet'
+      - name: reviews
+        meta:
+          external_location: '../data/silver/london/reviews.parquet'
+      - name: neighbourhoods
+        meta:
+          external_location: '../data/silver/london/neighbourhoods.parquet'

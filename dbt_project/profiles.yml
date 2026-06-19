@@ -1,0 +1,7 @@
+airbnb_london:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: '../data/gold/airbnb_london.duckdb'
+      threads: 4

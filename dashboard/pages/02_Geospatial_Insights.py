@@ -60,6 +60,18 @@ with col1:
     fig.update_xaxes(tickprefix="£", title="Average Nightly Price (£)")
     fig.update_yaxes(title="")
     st.plotly_chart(fig, use_container_width=True)
+    
+    most_expensive = geo_stats.iloc[0]['neighbourhood']
+    least_expensive = geo_stats.iloc[-1]['neighbourhood']
+    highest_price = geo_stats.iloc[0]['avg_price']
+    lowest_price = geo_stats.iloc[-1]['avg_price']
+    
+    st.markdown(f"""
+    <div style='color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-top: -10px; margin-bottom: 20px;'>
+        <b>Insight:</b> {most_expensive} is the most expensive borough (avg £{highest_price:.0f}), while {least_expensive} is the most affordable (£{lowest_price:.0f}).
+        This substantial £{highest_price - lowest_price:.0f} nightly spread suggests hosts command a massive premium for central, tourist-heavy locations compared to outer residential areas.
+    </div>
+    """, unsafe_allow_html=True)
 
 with col2:
     st.subheader("London Listing Density (Sample)")
@@ -79,3 +91,10 @@ with col2:
         ).add_to(m)
         
     st_folium(m, width=700, height=500, returned_objects=[])
+    
+    st.markdown("""
+    <div style='color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-top: 10px; margin-bottom: 20px;'>
+        <b>Insight:</b> The highest concentration of Airbnb properties clusters heavily in central London, thinning out significantly toward the outer boroughs. 
+        Note that this reflects Airbnb listing density (based on a 2,000-point sample), not population density, with notable coverage gaps in far east and south London.
+    </div>
+    """, unsafe_allow_html=True)

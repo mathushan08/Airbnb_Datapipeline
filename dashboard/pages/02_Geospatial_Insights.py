@@ -47,9 +47,18 @@ with col1:
         y='neighbourhood',
         orientation='h',
         color='avg_price',
-        color_continuous_scale='Teal'
+        color_continuous_scale='Teal',
+        labels={'avg_price': 'Average Price (£)', 'neighbourhood': 'Borough'}
     )
-    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#f8fafc", yaxis={'categoryorder':'total ascending'})
+    fig.update_layout(
+        plot_bgcolor="rgba(0,0,0,0)", 
+        paper_bgcolor="rgba(0,0,0,0)", 
+        font_color="#f8fafc", 
+        yaxis={'categoryorder':'total ascending'},
+        coloraxis_colorbar_title_text='Avg Price (£)'
+    )
+    fig.update_xaxes(tickprefix="£", title="Average Nightly Price (£)")
+    fig.update_yaxes(title="")
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:

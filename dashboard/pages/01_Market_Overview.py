@@ -63,7 +63,7 @@ with col_chart1:
         values='count', 
         names='room_type',
         hole=0.4,
-        color_discrete_sequence=px.colors.sequential.Teal
+        color_discrete_sequence=['#38bdf8', '#818cf8', '#fbbf24', '#f87171']
     )
     fig1.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#f8fafc")
     st.plotly_chart(fig1, use_container_width=True)

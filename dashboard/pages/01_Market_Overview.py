@@ -67,6 +67,18 @@ with col_chart1:
     )
     fig1.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#f8fafc")
     st.plotly_chart(fig1, use_container_width=True)
+    
+    room_types['pct'] = room_types['count'] / room_types['count'].sum() * 100
+    top_room = room_types.iloc[0]['room_type']
+    top_pct = room_types.iloc[0]['pct']
+    bottom_pct = room_types.iloc[-1]['pct']
+    second_bottom_pct = room_types.iloc[-2]['pct'] if len(room_types) > 2 else 0
+
+    st.markdown(f"""
+    <div style='color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-top: -10px;'>
+        <b>Insight:</b> '{top_room}' dominates the inventory, making up {top_pct:.1f}% of all properties. The two smallest categories are negligible, accounting for ~{(bottom_pct + second_bottom_pct):.1f}% combined.
+    </div>
+    """, unsafe_allow_html=True)
 
 with col_chart2:
     st.subheader("Superhost Market Share")
@@ -82,3 +94,13 @@ with col_chart2:
     fig2.update_yaxes(title="Total Listings")
     fig2.update_xaxes(title="")
     st.plotly_chart(fig2, use_container_width=True)
+    
+    sh_total = superhosts['count'].sum()
+    sh_count = superhosts[superhosts['host_is_superhost'] == True]['count'].sum()
+    reg_count = superhosts[superhosts['host_is_superhost'] == False]['count'].sum()
+    
+    st.markdown(f"""
+    <div style='color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-top: -10px;'>
+        <b>Insight:</b> Regular hosts account for {(reg_count / sh_total * 100):.1f}% of the total active inventory, compared to {(sh_count / sh_total * 100):.1f}% managed by Superhosts. Note this reflects the share of <i>listings</i>, not individual hosts or revenue.
+    </div>
+    """, unsafe_allow_html=True)

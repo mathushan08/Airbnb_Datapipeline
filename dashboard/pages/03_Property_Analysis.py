@@ -70,3 +70,31 @@ fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", f
 fig.update_xaxes(title="Host Tenure (Years)")
 fig.update_yaxes(title="Average Nightly Price (£)")
 st.plotly_chart(fig, use_container_width=True)
+
+import numpy as np
+x = tenure['host_tenure_years']
+y = tenure['avg_price']
+rating = tenure['avg_rating']
+
+if len(x) > 1:
+    slope, intercept = np.polyfit(x, y, 1)
+    corr = np.corrcoef(x, rating)[0, 1]
+else:
+    slope, corr = 0, 0
+
+trend_direction = "rises significantly" if slope > 5 else "falls significantly" if slope < -5 else "stays roughly flat"
+
+if corr > 0.3:
+    color_insight = "Longer-tenured hosts are associated with slightly higher ratings."
+elif corr < -0.3:
+    color_insight = "Longer-tenured hosts are associated with lower average ratings."
+else:
+    color_insight = "The color distribution shows no clear pattern, meaning tenure isn't strongly associated with better guest ratings."
+
+st.markdown(f"""
+<div style='color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-top: -10px;'>
+    <b>Insight:</b> The trend line shows that the average nightly price {trend_direction} (slope: £{slope:.2f}/year) as host tenure increases. 
+    {color_insight} 
+    <b>Takeaway:</b> Host experience (years on the platform) does not automatically translate into higher market power or superior guest satisfaction.
+</div>
+""", unsafe_allow_html=True)

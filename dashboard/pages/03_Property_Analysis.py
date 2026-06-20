@@ -34,7 +34,7 @@ def load_host_tenure():
     """).df()
 
 roi = load_amenity_roi().iloc[0]
-tenure = load_host_tenure()
+tenure = load_host_tenure().dropna(subset=['avg_rating', 'avg_price'])
 
 st.markdown("### The Value of Amenities")
 st.markdown("How much of a premium do specific amenities command in the London market?")

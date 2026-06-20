@@ -1,15 +1,15 @@
 import streamlit as st
 import duckdb
 import os
+from datetime import datetime
 
 st.set_page_config(
-    page_title="Airbnb Market Intelligence",
+    page_title="Home | Airbnb Market Intelligence",
     page_icon="🏙️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Apply custom CSS
 def load_css(file_name):
     with open(file_name) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -19,33 +19,76 @@ try:
 except Exception:
     pass
 
-# Helper function to get DuckDB connection
+# Inject sidebar active-page highlight and clean up nav styling
+st.markdown("""
+<style>
+[data-testid="stSidebarNav"] li:first-child a {
+    font-weight: 700 !important;
+    border-left: 3px solid #38bdf8;
+    padding-left: 8px;
+    color: #f8fafc !important;
+}
+[data-testid="stSidebarNav"] li a {
+    color: #94a3b8 !important;
+    font-size: 0.95rem;
+}
+[data-testid="stSidebarNav"] li a:hover {
+    color: #f8fafc !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 @st.cache_resource
 def get_db_connection():
-    # Construct absolute path to ensure reliability across environments
-    db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'gold', 'airbnb_london.duckdb'))
+    db_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'data', 'gold', 'airbnb_london.duckdb')
+    )
     return duckdb.connect(db_path, read_only=True)
 
+
 st.title("Airbnb Market Intelligence — London")
-st.markdown("### 🇬🇧 Welcome to the Medallion Data Platform")
+st.markdown("### Welcome to the Medallion Data Platform")
 
-st.markdown("""
-This executive dashboard serves as the **Gold Layer** presentation tier.
-It queries a highly-optimized DuckDB star schema containing millions of cleaned and validated Airbnb records.
-
-### Navigate the Platform:
-👈 Use the **sidebar** to explore:
-1. **Market Overview**: High-level KPIs and pricing trends.
-2. **Geospatial Insights**: Interactive borough heatmaps.
-3. **Property Analysis**: ROI breakdown by amenities and host types.
-""")
-
-st.info("💡 **Pro Tip**: The data driving this dashboard is refreshed directly from the underlying data warehouse.", icon="💡")
-
-# Run a simple validation query to prove DB is connected
 try:
     conn = get_db_connection()
-    count = conn.execute("SELECT count(*) FROM dim_listings").fetchone()[0]
-    st.success(f"✅ Warehouse Connected. Currently tracking **{count:,}** active listings.")
+
+    listing_count  = conn.execute("SELECT count(*) FROM dim_listings").fetchone()[0]
+    review_count   = conn.execute("SELECT count(*) FROM fact_reviews").fetchone()[0]
+    calendar_count = conn.execute("SELECT count(*) FROM fact_calendar").fetchone()[0]
+    total_records  = listing_count + review_count + calendar_count
+
+    st.markdown(f"""
+This executive dashboard is the **Gold Layer** presentation tier of a Medallion data pipeline.
+It queries a highly-optimised DuckDB star schema containing **{total_records:,} records** across
+reviews, pricing history, and calendar availability — covering **{listing_count:,} active listings**.
+
+### Navigate the Platform:
+Use the **sidebar** to explore:
+1. **Market Overview** — High-level KPIs and pricing trends.
+2. **Geospatial Insights** — Interactive borough heatmaps across London.
+3. **Property Analysis** — ROI breakdown by amenities and host tenure.
+""")
+
+    last_loaded = datetime.now().strftime("%d %b %Y, %H:%M")
+    st.info(
+        f"Data is refreshed on every pipeline run (typically daily). "
+        f"Dashboard last loaded: **{last_loaded}**.",
+        icon="ℹ️"
+    )
+
+    st.success(
+        f"Warehouse connected — tracking **{listing_count:,}** active listings, "
+        f"**{review_count:,}** reviews, and **{calendar_count:,}** calendar records."
+    )
+
 except Exception as e:
-    st.error(f"❌ Could not connect to the Data Warehouse. Please ensure Phase 3 (dbt) has been executed. Error: {e}")
+    st.markdown("""
+This executive dashboard is the **Gold Layer** presentation tier of a Medallion data pipeline.
+It queries a DuckDB star schema across reviews, pricing history, and calendar availability.
+""")
+    st.error(
+        f"Could not connect to the data warehouse. "
+        f"Please ensure Phase 3 (dbt run) has been executed first. Error: {e}"
+    )
+

@@ -103,20 +103,25 @@ st.markdown("---")
 st.markdown("### Occupancy Assumption")
 
 calendar_occ = occ_map.get(borough, 0.45)
+calendar_occ_pct = round(calendar_occ * 100)  # convert to integer % for display
+
 st.caption(
-    f"Historical occupancy for **{borough}** (from {len(occ_df):,} borough calendar records): "
+    f"Historical occupancy for **{borough}** (from calendar data across {len(occ_df):,} borough records): "
     f"**{calendar_occ:.1%}**. "
-    f"Adjust the slider below to stress-test different scenarios."
+    f"Adjust the slider below to stress-test different scenarios. "
+    f"Note: this figure is based on availability flags, not confirmed bookings — it may slightly overstate true occupancy."
 )
-occupancy = st.slider(
+
+occupancy_pct = st.slider(
     "Occupancy Rate",
-    min_value=0.30,
-    max_value=0.95,
-    value=round(calendar_occ, 2),
-    step=0.01,
-    format="%.0f%%",
-    help="Based on Inside Airbnb calendar data. 'Unavailable' includes host blocks, not just confirmed bookings."
+    min_value=30,
+    max_value=95,
+    value=max(30, min(95, calendar_occ_pct)),
+    step=1,
+    format="%d%%",
+    help="Percentage of nights per month the property is booked. Based on Inside Airbnb calendar data — drag to model best/worst case scenarios."
 )
+occupancy = occupancy_pct / 100  # convert back to decimal for revenue calculations
 
 st.markdown("---")
 

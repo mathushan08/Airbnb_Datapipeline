@@ -114,25 +114,25 @@ rating_significant = pval_r < 0.05
 
 if price_significant:
     price_line = (
-        f"The trend line nudges up by about £{slope_p:.0f} per additional year of host experience — "
+        f"The trend line nudges up by about £{slope_p:.0f} per additional year of host experience, "
         f"but this is so small it barely moves the needle across 18 years on the platform. "
         f"In practice, a host's tenure tells you almost nothing about what they'll charge per night."
     )
 else:
     price_line = (
-        f"The trend line is essentially flat — nightly price shows no meaningful relationship "
+        f"The trend line is essentially flat. Nightly price shows no meaningful relationship "
         f"with how long a host has been on the platform."
     )
 
 if rating_significant:
     rating_line = (
         f"More experienced hosts do tend to score marginally higher in guest ratings, "
-        f"but the improvement is small — roughly {slope_r:.2f} rating points per year of tenure."
+        f"but the improvement is small (roughly {slope_r:.2f} rating points per year of tenure)."
     )
 else:
     rating_line = (
-        f"Guest ratings show no consistent pattern with host tenure — "
-        f"a newer host is just as likely to have excellent reviews as a long-standing one."
+        f"Guest ratings show no consistent pattern with host tenure. "
+        f"A newer host is just as likely to have excellent reviews as a long-standing one."
     )
 
 st.markdown(f"""

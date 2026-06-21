@@ -47,7 +47,7 @@ def get_db_connection():
     return duckdb.connect(db_path, read_only=True)
 
 
-st.title("Airbnb Market Intelligence — London")
+st.title("Airbnb Market Intelligence: London")
 st.markdown("### Welcome to the Medallion Data Platform")
 
 try:
@@ -61,13 +61,13 @@ try:
     st.markdown(f"""
 This executive dashboard is the **Gold Layer** presentation tier of a Medallion data pipeline.
 It queries a highly-optimised DuckDB star schema containing **{total_records:,} records** across
-reviews, pricing history, and calendar availability — covering **{listing_count:,} active listings**.
+reviews, pricing history, and calendar availability, covering **{listing_count:,} active listings**.
 
 ### Navigate the Platform:
 Use the **sidebar** to explore:
-1. **Market Overview** — High-level KPIs and pricing trends.
-2. **Geospatial Insights** — Interactive borough heatmaps across London.
-3. **Property Analysis** — ROI breakdown by amenities and host tenure.
+1. **Market Overview**: High-level KPIs and pricing trends.
+2. **Geospatial Insights**: Interactive borough heatmaps across London.
+3. **Property Analysis**: ROI breakdown by amenities and host tenure.
 """)
 
     last_loaded = datetime.now().strftime("%d %b %Y, %H:%M")
@@ -78,7 +78,7 @@ Use the **sidebar** to explore:
     )
 
     st.success(
-        f"Warehouse connected — tracking **{listing_count:,}** active listings, "
+        f"Warehouse connected. Tracking **{listing_count:,}** active listings, "
         f"**{review_count:,}** reviews, and **{calendar_count:,}** calendar records."
     )
 

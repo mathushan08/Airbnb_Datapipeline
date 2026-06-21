@@ -19,7 +19,7 @@ try:
 except Exception:
     pass
 
-# Inject sidebar active-page highlight and clean up nav styling
+# Inject sidebar active-page highlight, clean up nav styling, and force full nav expansion
 st.markdown("""
 <style>
 [data-testid="stSidebarNav"] li:first-child a {
@@ -35,8 +35,23 @@ st.markdown("""
 [data-testid="stSidebarNav"] li a:hover {
     color: #f8fafc !important;
 }
+
+/* Force all pages to always show — remove the collapse chevron */
+[data-testid="stSidebarNav"] ul {
+    max-height: none !important;
+    overflow: visible !important;
+}
+[data-testid="stSidebarNavItems"] {
+    max-height: none !important;
+    overflow-y: visible !important;
+}
+[data-testid="stSidebarNavSeparator"],
+[data-testid="stSidebarNav"] + div > button {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 
 @st.cache_resource

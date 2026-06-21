@@ -70,3 +70,24 @@ section[data-testid="stSidebar"] {
     border-radius: 8px;
     overflow: hidden;
 }
+
+/* Force sidebar nav to always show all pages (hide collapse chevron) */
+[data-testid="stSidebarNav"] ul {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+[data-testid="stSidebarNavItems"] {
+    max-height: none !important;
+    overflow-y: visible !important;
+}
+
+/* Hide the expand/collapse chevron button */
+[data-testid="stSidebarNavSeparator"] {
+    display: none !important;
+}
+
+button[kind="sidebarButton"],
+[data-testid="stSidebarNav"] ~ div button {
+    display: none !important;
+}

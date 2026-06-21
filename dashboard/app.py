@@ -2,6 +2,7 @@ import streamlit as st
 import duckdb
 import os
 from datetime import datetime
+import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="Home | Airbnb Market Intelligence",
@@ -52,6 +53,27 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# JavaScript: auto-click the sidebar nav expand button so all pages are always visible
+components.html("""
+<script>
+(function expandSidebarNav() {
+    function tryExpand() {
+        // Find expand buttons inside the sidebar nav area in the parent frame
+        var doc = window.parent.document;
+        var btns = doc.querySelectorAll(
+            '[data-testid="stSidebarNavSeparator"] button, ' +
+            '[data-testid="stSidebarNav"] ~ div button'
+        );
+        btns.forEach(function(btn) { btn.click(); });
+    }
+    // Run at 300ms, 800ms and 1800ms to catch slow renders
+    setTimeout(tryExpand, 300);
+    setTimeout(tryExpand, 800);
+    setTimeout(tryExpand, 1800);
+})();
+</script>
+""", height=0, scrolling=False)
+
 
 
 @st.cache_resource
@@ -83,6 +105,8 @@ Use the **sidebar** to explore:
 1. **Market Overview**: High-level KPIs and pricing trends.
 2. **Geospatial Insights**: Interactive borough heatmaps across London.
 3. **Property Analysis**: ROI breakdown by amenities and host tenure.
+4. **Price Advisor**: Get a data-backed nightly price estimate for any listing configuration.
+5. **Investment Estimator**: Compare borough revenue potential and stress-test occupancy scenarios.
 """)
 
     last_loaded = datetime.now().strftime("%d %b %Y, %H:%M")

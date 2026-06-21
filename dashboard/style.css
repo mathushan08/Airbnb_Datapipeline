@@ -11,6 +11,14 @@ html, body, [class*="css"] {
     color: #f8fafc;
 }
 
+/* Widen the main content area */
+.block-container {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+    padding-top: 2rem !important;
+    max-width: 1400px !important;
+}
+
 /* Header & Titles */
 h1, h2, h3 {
     font-weight: 800 !important;

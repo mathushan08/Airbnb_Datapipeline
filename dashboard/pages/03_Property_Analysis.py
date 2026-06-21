@@ -66,6 +66,15 @@ with col3:
     gym_diff = roi['with_gym'] - roi['without_gym']
     st.metric("Gym Premium", f"£{roi['with_gym']:.0f}", f"+£{gym_diff:.0f} vs without")
 
+st.markdown("""
+<div style='color: #94a3b8; font-size: 0.82rem; line-height: 1.5; margin-top: 8px; padding: 8px 12px; border-left: 3px solid #475569;'>
+    <b>Methodology note:</b> These are raw price differences between listings with and without each amenity.
+    They do not control for property size, bedroom count, or borough —
+    treat as <i>correlational</i>, not causal. For example, only 0.5% of listings have a pool,
+    and these are overwhelmingly large luxury properties where the pool may not be the primary price driver.
+</div>
+""", unsafe_allow_html=True)
+
 st.markdown("---")
 st.subheader("Does Host Experience Matter?")
 st.markdown("Analyzing average listing price and guest ratings against the number of years the host has been on the platform.")

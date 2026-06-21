@@ -10,14 +10,18 @@ conn = get_db_connection()
 # Load high-level KPIs
 @st.cache_data(ttl=3600)
 def load_kpis():
-    return conn.execute("""
-        SELECT 
-            COUNT(*) as total_listings,
+    total = conn.execute("""
+        SELECT COUNT(*) as total_listings
+        FROM dim_listings
+    """).df()
+    stats = conn.execute("""
+        SELECT
             AVG(price) as avg_price,
             AVG(number_of_reviews) as avg_reviews
         FROM dim_listings
         WHERE price < 5000
     """).df()
+    return total.join(stats)
 
 @st.cache_data(ttl=3600)
 def load_room_types():

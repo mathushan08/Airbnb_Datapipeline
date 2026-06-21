@@ -72,7 +72,7 @@ Use the **sidebar** to explore:
 
     last_loaded = datetime.now().strftime("%d %b %Y, %H:%M")
     st.info(
-        f"Data is refreshed on every pipeline run (typically daily). "
+        f"Data reflects the latest Inside Airbnb snapshot (updated quarterly by the source). "
         f"Dashboard last loaded: **{last_loaded}**.",
         icon="ℹ️"
     )

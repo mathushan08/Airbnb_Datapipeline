@@ -3,10 +3,9 @@ import pandas as pd
 import plotly.express as px
 from app import get_db_connection
 
-st.set_page_config(page_title="Market Overview", page_icon="📈", layout="wide")
-st.title("📈 Market Overview")
-
+st.title("Market Overview")
 conn = get_db_connection()
+
 
 # Load high-level KPIs
 @st.cache_data(ttl=3600)

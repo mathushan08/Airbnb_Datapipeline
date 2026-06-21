@@ -5,8 +5,7 @@ import folium
 from streamlit_folium import st_folium
 from app import get_db_connection
 
-st.set_page_config(page_title="Geospatial Insights", page_icon="🗺️", layout="wide")
-st.title("🗺️ Geospatial Insights")
+st.title("Geospatial Insights")
 
 conn = get_db_connection()
 

@@ -3,8 +3,7 @@ import pandas as pd
 import plotly.express as px
 from app import get_db_connection
 
-st.set_page_config(page_title="Property Analysis", page_icon="🏠", layout="wide")
-st.title("🏠 Property & Amenity Analysis")
+st.title("Property & Amenity Analysis")
 
 conn = get_db_connection()
 

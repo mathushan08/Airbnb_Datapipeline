@@ -113,44 +113,36 @@ price_significant = pval_p < 0.05
 rating_significant = pval_r < 0.05
 
 if price_significant:
-    trend_desc = (
-        f"rises slightly (slope: £{slope_p:.2f}/year, p={pval_p:.3f}, R\u00b2={r2_p:.5f}, n={n:,})"
-        if slope_p > 0
-        else f"falls slightly (slope: £{slope_p:.2f}/year, p={pval_p:.3f}, R\u00b2={r2_p:.5f}, n={n:,})"
-    )
-    price_takeaway = (
-        f"While the relationship is statistically significant (p={pval_p:.3f}), "
-        f"R\u00b2={r2_p:.5f} indicates that tenure explains less than 0.1% of price variance. "
-        f"The effect is real but negligibly small — host tenure is not a meaningful predictor of price."
+    price_line = (
+        f"The trend line nudges up by about £{slope_p:.0f} per additional year of host experience — "
+        f"but this is so small it barely moves the needle across 18 years on the platform. "
+        f"In practice, a host's tenure tells you almost nothing about what they'll charge per night."
     )
 else:
-    trend_desc = (
-        f"shows no meaningful trend (slope: £{slope_p:.2f}/year, p={pval_p:.3f}, "
-        f"R\u00b2={r2_p:.6f}, n={n:,})"
-    )
-    price_takeaway = (
-        f"The relationship is not statistically significant (p={pval_p:.3f} > 0.05). "
-        f"R\u00b2={r2_p:.6f} indicates tenure explains essentially none of the price variance. "
-        f"The visual trend line is consistent with noise around a flat line."
+    price_line = (
+        f"The trend line is essentially flat — nightly price shows no meaningful relationship "
+        f"with how long a host has been on the platform."
     )
 
 if rating_significant:
-    rating_insight = (
-        f"Guest ratings do show a small but statistically significant rise with tenure "
-        f"(slope={slope_r:.4f}/year, p={pval_r:.3f}, R\u00b2={r2_r:.4f}), "
-        f"suggesting longer-tenured hosts are associated with marginally higher ratings — "
-        f"though the effect size is modest."
+    rating_line = (
+        f"More experienced hosts do tend to score marginally higher in guest ratings, "
+        f"but the improvement is small — roughly {slope_r:.2f} rating points per year of tenure."
     )
 else:
-    rating_insight = (
-        f"Guest ratings show no statistically significant relationship with tenure "
-        f"(p={pval_r:.3f} > 0.05), meaning tenure is not reliably associated with better or worse ratings."
+    rating_line = (
+        f"Guest ratings show no consistent pattern with host tenure — "
+        f"a newer host is just as likely to have excellent reviews as a long-standing one."
     )
 
 st.markdown(f"""
 <div style='color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-top: -10px;'>
-    <b>Insight (listing-level OLS, n={n:,}):</b> The trend line {trend_desc}.<br>
-    {rating_insight}<br>
-    <b>Takeaway:</b> {price_takeaway}
+    <b>What does this chart tell us?</b><br>
+    {price_line}<br><br>
+    {rating_line}<br><br>
+    <span style='font-size:0.78rem; color: #64748b;'>
+        Based on {n:,} individual listings. Statistical detail: price slope £{slope_p:.2f}/yr,
+        R²={r2_p:.4f}, p={pval_p:.3f}; rating slope {slope_r:.4f}/yr, R²={r2_r:.4f}, p={pval_r:.3f}.
+    </span>
 </div>
 """, unsafe_allow_html=True)

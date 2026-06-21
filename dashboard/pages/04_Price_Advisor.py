@@ -57,11 +57,11 @@ metrics    = artifact['metrics']
 boroughs   = artifact['borough_list']
 room_types = artifact['room_types']
 
-st.sidebar.markdown("---")
-st.sidebar.markdown(
-    f"**Model quality (test set)**  \n"
-    f"MAE: £{metrics['mae']:.0f} &nbsp; R²: {metrics['r2']:.2f}"
-)
+with st.expander("ℹ️ About this model"):
+    st.markdown(
+        f"This price prediction engine is powered by an XGBoost machine learning model trained on **61,712** real London Airbnb listings. "
+        f"When evaluated on a held-out test set, it achieved an **R² of {metrics['r2']:.2f}** and an average error (MAE) of **£{metrics['mae']:.0f}**."
+    )
 
 st.markdown("### Configure Your Listing")
 

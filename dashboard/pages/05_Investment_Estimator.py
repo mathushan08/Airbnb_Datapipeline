@@ -63,11 +63,11 @@ avg_price_df  = load_borough_avg_prices()
 
 occ_map = dict(zip(occ_df['borough'], occ_df['occupancy_rate']))
 
-st.sidebar.markdown("---")
-st.sidebar.markdown(
-    f"**Model quality (test set)**  \n"
-    f"MAE: £{metrics['mae']:.0f} &nbsp; R²: {metrics['r2']:.2f}"
-)
+with st.expander("ℹ️ About this model"):
+    st.markdown(
+        f"This price prediction engine is powered by an XGBoost machine learning model trained on **61,712** real London Airbnb listings. "
+        f"When evaluated on a held-out test set, it achieved an **R² of {metrics['r2']:.2f}** and an average error (MAE) of **£{metrics['mae']:.0f}**."
+    )
 
 st.markdown("### Property Configuration")
 col1, col2 = st.columns(2)

@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from app import get_db_connection
+from Home import get_db_connection
 
 st.title("Property & Amenity Analysis")
 

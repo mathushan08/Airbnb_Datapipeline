@@ -68,21 +68,25 @@ pip install -r requirements.txt
 
 ## Running the Pipeline
 
-### Run full pipeline (Bronze + Silver)
+### 1. Extract & Load (Bronze & Silver Layers)
+The orchestrator downloads raw files (Bronze) and cleans them into Parquet format (Silver).
 ```bash
 python pipeline/orchestrator.py --city london --phases all
 ```
 
-### Run individual phases
+### 2. Transform (Gold Layer via dbt)
+Build the DuckDB star schema (fact and dimension tables) from the Silver Parquet files.
 ```bash
-# Download raw data only
-python pipeline/orchestrator.py --city london --phases bronze
+cd dbt_project
+dbt deps
+dbt run
+cd ..
+```
 
-# Clean data only (requires bronze to be complete)
-python pipeline/orchestrator.py --city london --phases silver
-
-# Force re-download (skip incremental check)
-python pipeline/orchestrator.py --city london --phases bronze --force
+### 3. Machine Learning (Optional)
+Train the XGBoost price prediction model (a pre-trained `.pkl` is already included).
+```bash
+python models/train_model.py
 ```
 
 ---
@@ -96,7 +100,7 @@ pytest tests/ -v --tb=short
 
 ## Running the Dashboard
 ```bash
-streamlit run dashboard/app.py
+streamlit run dashboard/Home.py
 ```
 
 ---
@@ -144,7 +148,8 @@ Airbnb_DataPipeline/
 ## Execution Order
 
 1. `pip install -r requirements.txt`
-2. `python pipeline/orchestrator.py --city london --phases bronze`
-3. `python pipeline/orchestrator.py --city london --phases silver`
-4. `pytest tests/ -v`
+2. `python pipeline/orchestrator.py --city london --phases all`
+3. `cd dbt_project && dbt run && cd ..`
+4. `python models/train_model.py` *(Optional)*
+5. `streamlit run dashboard/app.py`
 

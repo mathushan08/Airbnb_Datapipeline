@@ -7,7 +7,7 @@ import duckdb
 import plotly.express as px
 import plotly.graph_objects as go
 import shap
-from app import get_db_connection
+from Home import get_db_connection
 
 st.title("Price Advisor")
 st.markdown("Configure a hypothetical listing and get an instant data-backed nightly price estimate.")

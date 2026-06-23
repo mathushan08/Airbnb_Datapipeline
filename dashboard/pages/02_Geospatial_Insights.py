@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import folium
 from streamlit_folium import st_folium
-from app import get_db_connection
+from Home import get_db_connection
 
 st.title("Geospatial Insights")
 

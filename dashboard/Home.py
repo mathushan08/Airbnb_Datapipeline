@@ -23,7 +23,7 @@ except Exception:
 # Inject sidebar active-page highlight, clean up nav styling, and force full nav expansion
 st.markdown("""
 <style>
-[data-testid="stSidebarNav"] li:first-child a {
+[data-testid="stSidebarNav"] li a[aria-current="page"] {
     font-weight: 700 !important;
     border-left: 3px solid #38bdf8;
     padding-left: 8px;

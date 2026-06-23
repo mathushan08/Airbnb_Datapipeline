@@ -5,7 +5,7 @@ import joblib
 import os
 import plotly.express as px
 import plotly.graph_objects as go
-from app import get_db_connection
+from Home import get_db_connection
 
 st.title("Investment Estimator")
 st.markdown(

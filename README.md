@@ -1,155 +1,210 @@
-# Airbnb Market Intelligence Pipeline
-## London, England — Inside Airbnb Data Challenge
+# Airbnb Market Intelligence: London
 
-> Built with Medallion Architecture (Bronze → Silver → Gold)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![dbt](https://img.shields.io/badge/dbt-FF694B?style=for-the-badge&logo=dbt&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)
+
+## Project Overview
+
+This project is an end-to-end data engineering and machine learning platform built to analyze the short-term rental market in London using the **Inside Airbnb** dataset. The platform transforms raw, semi-structured data into actionable business intelligence for real estate investors and property managers. 
+
+By leveraging a robust **Medallion Data Architecture (Bronze → Silver → Gold)**, the pipeline automates the extraction of raw files, applies strict data cleaning policies via Pandas, and models the data into a high-performance DuckDB Star Schema using `dbt`. Finally, an embedded XGBoost machine learning model predicts nightly rental prices, and the entire ecosystem is surfaced via an interactive Streamlit dashboard.
 
 ---
 
-## Architecture
+## 🎥 Dashboard Demo Video
+Watch the interactive Streamlit dashboard in action, featuring Geospatial Heatmaps, an Investment Estimator, and a live AI Price Advisor:
+👉 **[View the Demo Video on Google Drive](https://drive.google.com/file/d/1somSjs8itIbyZCylmAMAus-ek15wfUD7/view?usp=drive_link)**
 
+---
+
+## 🏗 Data Architecture
+
+The pipeline follows a strict Medallion architecture pattern. Raw CSVs are ingested into the **Bronze** layer. They are subsequently cleaned, standardized, and saved as highly-compressed Parquet files in the **Silver** layer. Finally, DuckDB and dbt transform the Parquet files into a dimensional Star Schema in the **Gold** layer.
+
+```mermaid
+flowchart TB
+    classDef default fill:#1E222D,stroke:#4A5568,stroke-width:2px,color:#FFFFFF,rx:8px,ry:8px
+    classDef bronze fill:#cd7f32,stroke:#8C5622,stroke-width:2px,color:#FFF,rx:8px,ry:8px
+    classDef silver fill:#C0C0C0,stroke:#808080,stroke-width:2px,color:#000,rx:8px,ry:8px
+    classDef gold fill:#FFD700,stroke:#B8860B,stroke-width:2px,color:#000,rx:8px,ry:8px
+    
+    subgraph TopRow [ ]
+        direction LR
+        subgraph Ingestion [Ingestion]
+            direction LR
+            I_A[Inside Airbnb] -->|Extract| I_B[Raw CSV Files]:::bronze
+        end
+        subgraph Transformation [Transformation]
+            direction TB
+            T_A[Pandas Cleaning] --> T_B[(Parquet Files)]:::silver
+            T_B --> T_C[(DuckDB Warehouse)]:::gold
+            T_D{{dbt Core}} <-->|SQL Models| T_C
+        end
+        subgraph Serving [Visualization & ML]
+            direction TB
+            V_A(XGBoost Model)
+            V_B{Streamlit}
+            V_A -.->|Price Inference| V_B
+        end
+        Ingestion --> Transformation
+        Transformation --> Serving
+    end
+    subgraph Orchestration [Orchestration]
+        direction LR
+        O_A((Python orchestrator.py))
+    end
+    subgraph Environment [Environment]
+        direction LR
+        E_A[Docker]
+        E_B[GitHub]
+    end
+    TopRow ~~~ Orchestration
+    Orchestration ~~~ Environment
+    
+    style TopRow fill:none,stroke:none
+    style Ingestion fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Transformation fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Serving fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Orchestration fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Environment fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
 ```
-Inside Airbnb (Source)
-        │
-        ▼
-🟤 BRONZE LAYER          Raw .csv.gz files, downloaded as-is
-        │
-        ▼
-🥈 SILVER LAYER          Cleaned Parquet files (standardized, validated, enriched)
-        │
-        ▼
-🥇 GOLD LAYER            Star schema in DuckDB (fact + dimension tables via dbt)
-        │
-        ▼
-📊 STREAMLIT DASHBOARD   Interactive market intelligence explorer
+
+---
+
+## 🧬 dbt Lineage Graph
+
+The Gold layer is orchestrated exclusively by `dbt`. The lineage graph below illustrates how the flat Silver-layer Parquet tables (Sources) are mapped into lightweight `stg_` views (Staging), and then joined into the final `dim_` and `fact_` tables (Marts) that power the dashboard.
+
+```mermaid
+graph LR
+    classDef source fill:#1b5f49,stroke:#0f3f2d,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef staging fill:#1890ff,stroke:#0050b3,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef mart fill:#fadb14,stroke:#d4b106,stroke-width:2px,color:#000,rx:8px,ry:8px
+
+    subgraph Sources [External Sources]
+        direction TB
+        S_Listings[(source: listings)]:::source
+        S_Calendar[(source: calendar)]:::source
+        S_Reviews[(source: reviews)]:::source
+        S_Neighbourhoods[(source: neighbourhoods)]:::source
+    end
+
+    subgraph Staging [Staging Models]
+        direction TB
+        stg_listings:::staging
+        stg_calendar:::staging
+        stg_reviews:::staging
+        stg_neighbourhoods:::staging
+    end
+
+    subgraph Marts [Marts Models]
+        direction TB
+        dim_listings:::mart
+        dim_hosts:::mart
+        dim_geography:::mart
+        fact_calendar:::mart
+        fact_reviews:::mart
+    end
+
+    S_Listings --> stg_listings
+    S_Calendar --> stg_calendar
+    S_Reviews --> stg_reviews
+    S_Neighbourhoods --> stg_neighbourhoods
+
+    stg_listings --> dim_listings
+    stg_neighbourhoods --> dim_listings
+    stg_listings --> dim_hosts
+    stg_neighbourhoods --> dim_geography
+    stg_calendar --> fact_calendar
+    dim_listings -.-> fact_calendar
+    stg_reviews --> fact_reviews
+    dim_listings -.-> fact_reviews
 ```
+* **Green (Sources):** Raw inputs dynamically pointing to the Silver Parquet data.
+* **Blue (Staging):** Type casting, renaming, and null handling.
+* **Yellow (Marts):** Heavily joined Star Schema tables optimized for BI reads.
 
 ---
 
-## Tech Stack
+## 🚀 Setup & Execution (Docker)
 
-| Layer | Tool |
-|---|---|
-| Language | Python 3.12, SQL |
-| Data Processing | pandas, pyarrow |
-| Data Warehouse | DuckDB |
-| Transformation | dbt-core + dbt-duckdb |
-| Visualization | plotly, seaborn, Folium |
-| Statistics | scipy, statsmodels |
-| ML | scikit-learn, XGBoost, SHAP |
-| Dashboard | Streamlit |
-| Containerization | Docker + docker-compose |
-| Testing | pytest |
+The absolute easiest way to run the entire pipeline and dashboard is via Docker. This guarantees that all system dependencies, database drivers, and Python libraries run exactly as intended.
 
----
+### Prerequisites
+- Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) (ensure the Docker daemon is running).
+- Git installed on your local machine.
 
-## Setup Instructions
+### Step-by-Step Instructions
 
-### 1. Clone the repository
+**1. Clone the repository:**
 ```bash
-git clone <repo-url>
+git clone <repository_url>
 cd Airbnb_DataPipeline
 ```
 
-### 2. Create a virtual environment
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
-```
+**2. Build and run the containerized application:**
+This single command will build the Docker image, install all requirements, run the Python orchestrator (downloading & cleaning data), execute the `dbt` models to build the DuckDB database, and finally launch the Streamlit dashboard on port `8501`.
 
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Running the Pipeline
-
-### 1. Extract & Load (Bronze & Silver Layers)
-The orchestrator downloads raw files (Bronze) and cleans them into Parquet format (Silver).
-```bash
-python pipeline/orchestrator.py --city london --phases all
-```
-
-### 2. Transform (Gold Layer via dbt)
-Build the DuckDB star schema (fact and dimension tables) from the Silver Parquet files.
-```bash
-cd dbt_project
-dbt deps
-dbt run
-cd ..
-```
-
-### 3. Machine Learning (Optional)
-Train the XGBoost price prediction model (a pre-trained `.pkl` is already included).
-```bash
-python models/train_model.py
-```
-
----
-
-## Running Tests
-```bash
-pytest tests/ -v --tb=short
-```
-
----
-
-## Running the Dashboard
-```bash
-streamlit run dashboard/Home.py
-```
-
----
-
-## Running with Docker
 ```bash
 docker-compose up --build
 ```
+*(Note: The initial run may take a few minutes as it downloads the ~1GB dataset from Inside Airbnb and executes the pipeline).*
+
+**3. Access the Dashboard:**
+Once the terminal logs indicate that Streamlit is running, open your web browser and navigate to:
+👉 **[http://localhost:8501](http://localhost:8501)**
+
+**4. Shutting down:**
+To cleanly stop the dashboard and container, simply press `Ctrl+C` in your terminal and then run:
+```bash
+docker-compose down
+```
 
 ---
 
-## Project Structure
+## 🛠 Manual Execution (Without Docker)
 
-```
+If you prefer to run the pipeline manually on your local machine without Docker, follow these steps:
+
+1. **Setup Python Environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+2. **Run the Ingestion & Cleaning Pipeline (Bronze & Silver):**
+   ```bash
+   python pipeline/orchestrator.py --city london --phases all
+   ```
+
+3. **Run the dbt Transformations (Gold):**
+   ```bash
+   cd dbt_project
+   dbt deps
+   dbt run
+   cd ..
+   ```
+
+4. **Launch the Dashboard:**
+   ```bash
+   streamlit run dashboard/Home.py
+   ```
+
+---
+
+## 📁 Project Structure
+
+```text
 Airbnb_DataPipeline/
-├── config/
-│   └── cities.yaml              City config & download URLs
-├── data/
-│   ├── bronze/london/           Raw downloaded files (gitignored)
-│   ├── silver/london/           Cleaned Parquet files (gitignored)
-│   └── gold/                    DuckDB star schema
-├── pipeline/
-│   ├── bronze_ingest.py         Download & validate raw files
-│   ├── silver_clean.py          Clean, standardize, validate
-│   ├── silver_enrich.py         Join & derive enriched fields
-│   ├── gold_load.py             Load Silver into DuckDB
-│   ├── profiler.py              Data quality profiling report
-│   ├── validator.py             Domain rule validation
-│   ├── metadata.py              Pipeline metadata & lineage tracking
-│   └── orchestrator.py         End-to-end pipeline runner
-├── dbt_project/                 dbt models for Gold layer
-├── notebooks/                   Jupyter analysis notebooks
-├── dashboard/                   Streamlit app
-├── sql/                         Analytical SQL queries
-├── tests/                       pytest unit tests
-├── logs/                        Pipeline execution logs
-├── reports/                     Data quality HTML reports
-├── requirements.txt
-├── docker-compose.yml
-└── create_notebooks.py
+├── dashboard/               # Streamlit UI pages and custom styling (CSS)
+├── data/                    # Local storage (Bronze CSVs, Silver Parquets, Gold DuckDB)
+├── dbt_project/             # SQL transformations, macros, and schema definitions
+├── pipeline/                # Python scripts for Bronze ingestion & Silver cleaning
+├── requirements.txt         # Python dependencies
+├── Dockerfile               # Container blueprint
+├── docker-compose.yml       # Orchestrates the container lifecycle
+└── Final_Report.md          # In-depth technical assessment report
 ```
-
----
-
-## Execution Order
-
-1. `pip install -r requirements.txt`
-2. `python pipeline/orchestrator.py --city london --phases all`
-3. `cd dbt_project && dbt run && cd ..`
-4. `python models/train_model.py` *(Optional)*
-5. `streamlit run dashboard/app.py`
-

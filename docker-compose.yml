@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build: .
+    container_name: airbnb_dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mount the local data directory so the dashboard can read the DuckDB file
+      - ./data:/app/data
+      # Optionally mount Streamlit config if needed
+      - ./.streamlit:/app/.streamlit
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["streamlit", "run", "dashboard/Home.py"]
+
+  # Optional helper service to run the data pipeline manually
+  # Usage: docker-compose run --rm pipeline
+  pipeline:
+    build: .
+    container_name: airbnb_pipeline
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python", "pipeline/orchestrator.py", "--city", "london", "--phases", "all"]
+
+  # Optional helper service to run dbt models manually
+  # Usage: docker-compose run --rm dbt
+  dbt:
+    build: .
+    container_name: airbnb_dbt
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    working_dir: /app/dbt_project
+    command: ["dbt", "run"]

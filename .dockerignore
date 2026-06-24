@@ -1,0 +1,11 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.git/
+.github/
+data/
+dbt_project/target/
+dbt_project/logs/
+.env

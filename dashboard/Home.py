@@ -50,6 +50,11 @@ st.markdown("""
 [data-testid="stSidebarNav"] + div > button {
     display: none !important;
 }
+
+/* Shift main content text block upwards to fix standard Streamlit padding */
+.block-container {
+    padding-top: 2rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 

@@ -23,7 +23,53 @@ Watch the interactive Streamlit dashboard in action, featuring Geospatial Heatma
 
 The pipeline follows a strict Medallion architecture pattern. Raw CSVs are ingested into the **Bronze** layer. They are subsequently cleaned, standardized, and saved as highly-compressed Parquet files in the **Silver** layer. Finally, DuckDB and dbt transform the Parquet files into a dimensional Star Schema in the **Gold** layer.
 
-![Data Architecture Diagram](architecture.png)
+```mermaid
+flowchart TB
+    classDef default fill:#1E222D,stroke:#4A5568,stroke-width:2px,color:#FFFFFF,rx:8px,ry:8px
+    classDef bronze fill:#cd7f32,stroke:#8C5622,stroke-width:2px,color:#FFF,rx:8px,ry:8px
+    classDef silver fill:#C0C0C0,stroke:#808080,stroke-width:2px,color:#000,rx:8px,ry:8px
+    classDef gold fill:#FFD700,stroke:#B8860B,stroke-width:2px,color:#000,rx:8px,ry:8px
+    
+    subgraph TopRow [ ]
+        direction LR
+        subgraph Ingestion [Ingestion]
+            direction LR
+            I_A[Inside Airbnb] -->|Extract| I_B[Raw CSV Files]:::bronze
+        end
+        subgraph Transformation [Transformation]
+            direction TB
+            T_A[Pandas Cleaning] --> T_B[(Parquet Files)]:::silver
+            T_B --> T_C[(DuckDB Warehouse)]:::gold
+            T_D{{dbt Core}} <-->|SQL Models| T_C
+        end
+        subgraph Serving [Visualization & ML]
+            direction TB
+            V_A(XGBoost Model)
+            V_B{Streamlit}
+            V_A -.->|Price Inference| V_B
+        end
+        Ingestion --> Transformation
+        Transformation --> Serving
+    end
+    subgraph Orchestration [Orchestration]
+        direction LR
+        O_A((Python orchestrator.py))
+    end
+    subgraph Environment [Environment]
+        direction LR
+        E_A[Docker]
+        E_B[GitHub]
+    end
+    TopRow ~~~ Orchestration
+    Orchestration ~~~ Environment
+    
+    style TopRow fill:none,stroke:none
+    style Ingestion fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Transformation fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Serving fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Orchestration fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+    style Environment fill:#2A313C,stroke:#63B3ED,stroke-width:2px,color:#FFF
+```
 
 ---
 
@@ -31,7 +77,51 @@ The pipeline follows a strict Medallion architecture pattern. Raw CSVs are inges
 
 The Gold layer is orchestrated exclusively by `dbt`. The lineage graph below illustrates how the flat Silver-layer Parquet tables (Sources) are mapped into lightweight `stg_` views (Staging), and then joined into the final `dim_` and `fact_` tables (Marts) that power the dashboard.
 
-![dbt Lineage Graph](lineage.png)
+```mermaid
+graph LR
+    classDef source fill:#1b5f49,stroke:#0f3f2d,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef staging fill:#1890ff,stroke:#0050b3,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef mart fill:#fadb14,stroke:#d4b106,stroke-width:2px,color:#000,rx:8px,ry:8px
+
+    subgraph Sources [External Sources]
+        direction TB
+        S_Listings[(source: listings)]:::source
+        S_Calendar[(source: calendar)]:::source
+        S_Reviews[(source: reviews)]:::source
+        S_Neighbourhoods[(source: neighbourhoods)]:::source
+    end
+
+    subgraph Staging [Staging Models]
+        direction TB
+        stg_listings:::staging
+        stg_calendar:::staging
+        stg_reviews:::staging
+        stg_neighbourhoods:::staging
+    end
+
+    subgraph Marts [Marts Models]
+        direction TB
+        dim_listings:::mart
+        dim_hosts:::mart
+        dim_geography:::mart
+        fact_calendar:::mart
+        fact_reviews:::mart
+    end
+
+    S_Listings --> stg_listings
+    S_Calendar --> stg_calendar
+    S_Reviews --> stg_reviews
+    S_Neighbourhoods --> stg_neighbourhoods
+
+    stg_listings --> dim_listings
+    stg_neighbourhoods --> dim_listings
+    stg_listings --> dim_hosts
+    stg_neighbourhoods --> dim_geography
+    stg_calendar --> fact_calendar
+    dim_listings -.-> fact_calendar
+    stg_reviews --> fact_reviews
+    dim_listings -.-> fact_reviews
+```
 * **Green (Sources):** Raw inputs dynamically pointing to the Silver Parquet data.
 * **Blue (Staging):** Type casting, renaming, and null handling.
 * **Yellow (Marts):** Heavily joined Star Schema tables optimized for BI reads.
